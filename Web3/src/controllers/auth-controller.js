@@ -13,7 +13,23 @@ exports.signup = async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
 
     const merchant = await merchantService.create({ email, passwordHash });
-    res.status(201).json({ message: 'User created' });
+    
+    // Generate tokens after successful signup
+    const accessToken = generateAccessToken(merchant);
+    const refreshToken = generateRefreshToken(merchant);
+
+    // Set refresh token in HTTP-only cookie
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      sameSite: 'Strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, 
+    });
+
+    
+    res.status(201).json({ 
+      message: 'User created',
+      accessToken 
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });

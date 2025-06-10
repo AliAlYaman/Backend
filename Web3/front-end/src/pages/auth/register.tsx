@@ -8,6 +8,7 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Link } from "react-router-dom";
+import { signup } from "../../services/api/api"; // adjust path as needed
 
 export function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,6 +20,8 @@ export function RegisterPage() {
     password: "",
     confirmPassword: "",
   });
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
@@ -26,23 +29,57 @@ export function RegisterPage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!");
-      return;
-    }
-    if (!agreedToTerms) {
-      alert("Please agree to the terms and conditions");
-      return;
-    }
+  const handleSignup = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError(null);
+  setSuccess(null);
 
+  if (formData.password !== formData.confirmPassword) {
+    alert("Passwords don't match!");
+    return;
+  }
+  if (!agreedToTerms) {
+    alert("Please agree to the terms and conditions");
+    return;
+  }
+
+  try {
     setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    const data = await signup({
+      email: formData.email,
+      password: formData.password,
+    });
+
+    setSuccess("Signup successful!");
+    console.log("Signup response:", data);
+    // Optionally redirect or reset form
+  } catch (err: any) {
+    const message = err.response?.data?.message || "Signup failed";
+    setError(message);
+  } finally {
     setIsLoading(false);
-    console.log("Register attempt:", formData);
-  };
+  }
+};
+
+
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (formData.password !== formData.confirmPassword) {
+  //     alert("Passwords don't match!");
+  //     return;
+  //   }
+  //   if (!agreedToTerms) {
+  //     alert("Please agree to the terms and conditions");
+  //     return;
+  //   }
+
+  //   setIsLoading(true);
+  //   // Simulate API call
+  //   await new Promise((resolve) => setTimeout(resolve, 2000));
+  //   setIsLoading(false);
+  //   console.log("Register attempt:", formData);
+  // };
 
   const passwordStrength = (password: string) => {
     let strength = 0;
@@ -129,7 +166,7 @@ export function RegisterPage() {
           </div>
 
           {/* Register Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSignup} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
@@ -295,6 +332,8 @@ export function RegisterPage() {
                 "Create Account"
               )}
             </Button>
+            {error && <p className="text-red-500 text-sm text-center mt-2">{error}</p>}
+            {success && <p className="text-green-500 text-sm text-center mt-2">{success}</p>}
           </form>
 
           {/* Footer */}

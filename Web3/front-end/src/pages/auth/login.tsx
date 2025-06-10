@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 
 import { useState } from "react"
@@ -8,6 +6,7 @@ import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Link } from "react-router-dom"
+import { useAuth } from "../../contexts/auth-context"
 
 
 export function LoginPage() {
@@ -15,15 +14,22 @@ export function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const { login } = useAuth();
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setIsLoading(false)
-    console.log("Login attempt:", { email, password })
-  }
+    try {
+      await login({ email, password });
+      setSuccess("Login successful!");
+    } catch (err: any) {
+      setError(err.message || 'Login failed');
+      setIsLoading(false);
+    }
+  };
+  
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center relative overflow-hidden">
@@ -82,7 +88,7 @@ export function LoginPage() {
           </div>
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -143,6 +149,9 @@ export function LoginPage() {
                 "Sign In"
               )}
             </Button>
+            {error && <p className="text-red-500 text-sm text-center mt-2">{error}</p>}
+            {success && <p className="text-green-500 text-sm text-center mt-2">{success}</p>}
+
           </form>
 
           {/* Footer */}
