@@ -40,3 +40,22 @@ export const logout = async () => {
   const res = await api.post('/auth/logout');
   return res.data;
 };
+
+// src/lib/api.ts
+export const transferCrypto = async (data: {
+  senderAddress: string;
+  recipientAddress: string;
+  amount: string;
+  tokenSymbol: string;
+  network: string;
+}) => {
+  try {
+    const response = await api.post('/transfer', data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || "Transfer failed");
+    }
+    throw error;
+  }
+};

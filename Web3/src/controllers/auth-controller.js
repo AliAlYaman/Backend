@@ -1,7 +1,8 @@
 const bcrypt = require('bcrypt');
-const crypto = require('crypto');
 const merchantService = require('../services/merchant-service');
 const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../utils/jwt');
+const { Wallet } = require('ethers');
+const db = require('../database/index'); // assuming this exports a pg client or pool instance
 
 exports.signup = async (req, res) => {
   const { email, password } = req.body;
@@ -12,29 +13,44 @@ exports.signup = async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const merchant = await merchantService.create({ email, passwordHash });
-    
+    // Insert user and get created user back
+    const user = await merchantService.create({ email, password: passwordHash });
+
+    // ✅ Generate custodial wallet
+    const ethWallet = Wallet.createRandom();
+    const cryptoType = 'ETH'; // or BTC, etc.
+
+    await db.query(
+      `INSERT INTO wallets (user_id, crypto_type, public_key, private_key)
+       VALUES ($1, $2, $3, $4)`,
+      [user.id, cryptoType, ethWallet.address, ethWallet.privateKey]
+    );
+
     // Generate tokens after successful signup
-    const accessToken = generateAccessToken(merchant);
-    const refreshToken = generateRefreshToken(merchant);
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
 
     // Set refresh token in HTTP-only cookie
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       sameSite: 'Strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, 
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    
-    res.status(201).json({ 
+    res.status(201).json({
       message: 'User created',
-      accessToken 
+      accessToken,
+      wallet: {
+        address: ethWallet.address,
+        crypto_type: cryptoType
+      }
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
@@ -79,3 +95,13 @@ exports.logout = (req, res) => {
   });
   res.json({ message: 'Logged out' });
 };
+
+
+
+exports.generateWallet = () => {
+  const wallet = Wallet.createRandom();
+  return {
+    address: wallet.address,
+    privateKey: wallet.privateKey,
+  };
+}

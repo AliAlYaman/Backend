@@ -22,6 +22,7 @@ export function Header() {
         <a href="#" className="text-gray-300 hover:text-white transition-colors">Learn</a>
         <a href="#" className="text-gray-300 hover:text-white transition-colors">Build</a>
         <a href="#" className="text-gray-300 hover:text-white transition-colors">Explore</a>
+        <Link to="transfer" className="text-gray-300 hover:text-white transition-colors">Transfer</Link>
       </nav>
 
       <div className="flex items-center space-x-4">
