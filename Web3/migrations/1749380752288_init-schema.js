@@ -19,6 +19,7 @@ exports.up = (pgm) => {
     crypto_type: { type: 'varchar(10)', notNull: true },
     public_key: { type: 'varchar(255)', notNull: true },
     private_key: { type: 'text' }, // only if custodial
+    balance: { type: 'numeric(30, 18)', notNull: true, default: 0 },
     created_at: { type: 'timestamp', default: pgm.func('current_timestamp') },
   });
 

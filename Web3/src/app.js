@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/auth-routes');
 const paymentRoutes = require('./routes/payment-routes');
 const transferRoutes=  require('./routes/transfer-routes');
+const walletRoutes = require("./routes/wallet-routes");
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api/transfer', transferRoutes);
+app.use("/api/wallets", walletRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use((req, res) => {

@@ -59,3 +59,16 @@ export const transferCrypto = async (data: {
     throw error;
   }
 };
+
+
+// Get or create a wallet
+export const generateWallet = async (cryptoType: string): Promise<{ address: string }> => {
+  const res = await api.post('/wallets/generate', { cryptoType });
+  return res.data;
+};
+
+// Get all user wallets
+export const getUserWallets = async (): Promise<Array<{ crypto_type: string; public_key: string }>> => {
+  const res = await api.get('/wallets');
+  return res.data;
+};

@@ -20,8 +20,8 @@ export function Header() {
 
       <nav className="hidden md:flex items-center space-x-8">
         <a href="#" className="text-gray-300 hover:text-white transition-colors">Learn</a>
-        <a href="#" className="text-gray-300 hover:text-white transition-colors">Build</a>
-        <a href="#" className="text-gray-300 hover:text-white transition-colors">Explore</a>
+        <Link to="wallet/balance" className="text-gray-300 hover:text-white transition-colors">Balance</Link>
+        <Link to="wallet" className="text-gray-300 hover:text-white transition-colors">Deposit</Link>
         <Link to="transfer" className="text-gray-300 hover:text-white transition-colors">Transfer</Link>
       </nav>
 
