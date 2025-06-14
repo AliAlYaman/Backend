@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
+const authRoutes = require('./routes/auth-routes');
 
 dotenv.config();
 
@@ -16,6 +17,11 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
+
+
+
+app.use('/api/auth', authRoutes);
+
 
 // 404 handler
 app.use((req, res, next) => {

@@ -1,30 +1,15 @@
-const mongoose = require('mongoose');
+const mongoose = require('../database/connect');
+const User = require('../models/user-model');
 require('dotenv').config();
 
-// Optional: load your models here
-const User = require('../models/user-model');
-
-const MONGO_URI = process.env.MONGO_URI;
-
-const seed = async () => {
+(async () => {
   try {
-    await mongoose.connect(MONGO_URI);
-    console.log('✅ Connected to MongoDB for seeding');
-
-    // 🔽 Do your seeding logic here
-    await User.create({ 
-      username: 'testuser',
-      email: 'test@example.com',
-      password: 'password123',
-      elo : 1000
-    });
-
+    await User.deleteMany({});
+    await User.create({ username: 'admin', email: 'admin@chess.com', password: 'admin123' });
     console.log('🌱 Seeding complete');
     process.exit(0);
-  } catch (err) {
-    console.error('❌ Seeding error:', err);
+  } catch (e) {
+    console.error('❌ Seed error', e);
     process.exit(1);
   }
-};
-
-seed();
+})();
