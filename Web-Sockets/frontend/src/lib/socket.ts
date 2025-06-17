@@ -1,9 +1,8 @@
-// src/socket.ts
-import { io } from 'socket.io-client';
+import { io } from "socket.io-client"
 
-const socket = io('http://localhost:3000', {
-  transports: ['websocket'],
+const URL = "http://localhost:3000" // backend URL
+
+export const socket = io(URL, {
   withCredentials: true,
-});
-
-export default socket;
+  autoConnect: false,
+})

@@ -1,43 +1,53 @@
-// /sockets/chess.js
-const { v4: uuidv4 } = require('uuid');
-
-const games = {}; // Store game state: { roomId: { players: [], board: ... } }
+const activeGames = {}
 
 module.exports = (io) => {
-  io.on('connection', (socket) => {
-    console.log('User connected:', socket.id);
+  const rooms = {}; // roomId -> array of usernames
 
-    socket.on('joinGame', () => {
-      let room = Object.keys(games).find(roomId => games[roomId].players.length === 1);
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
 
-      if (room) {
-        // Join existing room
-        games[room].players.push(socket.id);
-        socket.join(room);
-        io.to(room).emit('startGame', { roomId: room, color: 'black', opponent: games[room].players[0] });
-        io.to(games[room].players[0]).emit('startGame', { roomId: room, color: 'white', opponent: socket.id });
-      } else {
-        // Create new room
-        const roomId = uuidv4();
-        games[roomId] = { players: [socket.id], board: null };
-        socket.join(roomId);
-      }
-    });
+  socket.on("join-room", ({ roomId, username }) => {
+    socket.join(roomId);
+    socket.username = username;
+    socket.roomId = roomId;
 
-    socket.on('move', ({ roomId, move }) => {
-      socket.to(roomId).emit('opponentMove', move);
-    });
+    // Initialize room array if it doesn't exist
+    if (!rooms[roomId]) {
+      rooms[roomId] = [];
+    }
 
-    socket.on('disconnect', () => {
-      console.log('User disconnected:', socket.id);
-      for (const roomId in games) {
-        const idx = games[roomId].players.indexOf(socket.id);
-        if (idx !== -1) {
-          games[roomId].players.splice(idx, 1);
-          io.to(roomId).emit('opponentLeft');
-          if (games[roomId].players.length === 0) delete games[roomId];
-        }
-      }
-    });
+    // Avoid adding duplicate usernames
+    if (!rooms[roomId].includes(username)) {
+      rooms[roomId].push(username);
+    }
+
+    console.log(`Room ${roomId} has users:`, rooms[roomId]);
+
+    // Notify all players of current user list
+    io.to(roomId).emit("players-update", rooms[roomId]);
+
+    // Start game if 2 players have joined
+    if (rooms[roomId].length === 2) {
+      io.to(roomId).emit("start-game", {
+        white: rooms[roomId][0],
+        black: rooms[roomId][1],
+      });
+    }
   });
-};
+
+  socket.on("disconnect", () => {
+    const { username, roomId } = socket;
+    if (roomId && rooms[roomId]) {
+      rooms[roomId] = rooms[roomId].filter((name) => name !== username);
+      io.to(roomId).emit("players-update", rooms[roomId]);
+    }
+  });
+
+  socket.on("move", ({ roomId, from, to }) => {
+  // Simply relay move to other clients
+  socket.to(roomId).emit("move", { from, to })
+})
+
+});
+
+}

@@ -4,8 +4,8 @@ import { useEffect, useState, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 import { Button } from "../ui/button"
 import { Badge } from "../ui/badge"
-import { User, AlertCircle, Wifi, WifiOff } from "lucide-react"
-import socket from "../../lib/socket"
+import { User, AlertCircle, Wifi, WifiOff, Timer, Flag, Handshake, RotateCcw } from "lucide-react"
+import {socket} from "../../lib/socket"
 import ChessBoard from "./chess-board"
 import GameInfo from "./game-info"
 import MoveHistory from "./move-history"
@@ -34,7 +34,7 @@ interface Move {
 }
 
 interface GameState {
-  board: string[][]
+  board: (string | null)[][]
   currentPlayer: "white" | "black"
   isCheck: boolean
   isCheckmate: boolean
@@ -42,7 +42,7 @@ interface GameState {
   winner?: "white" | "black" | "draw"
 }
 
-const initialBoard = [
+const initialBoard: (string | null)[][] = [
   ["r", "n", "b", "q", "k", "b", "n", "r"],
   ["p", "p", "p", "p", "p", "p", "p", "p"],
   [null, null, null, null, null, null, null, null],
@@ -113,7 +113,6 @@ export default function ChessGame({ roomId, username }: ChessGameProps) {
       if (gamePlayers.length === 2) {
         setOpponentJoined(true)
         setGameStarted(true)
-        // White player starts first
         setMyTurn(playerColor === "white")
       }
     })
@@ -128,8 +127,6 @@ export default function ChessGame({ roomId, username }: ChessGameProps) {
       setMoves((prev) => [...prev, newMove])
       setGameState(moveData.gameState)
       setMyTurn(true)
-
-      // Update timer
       setTimeLeft(moveData.timeLeft)
     })
 
@@ -141,7 +138,7 @@ export default function ChessGame({ roomId, username }: ChessGameProps) {
       setConnectionError("Room is full! Cannot join the game.")
     })
 
-    socket.on("player-disconnected", ({ playerId }) => {
+    socket.on("player-disconnected", () => {
       setConnectionError("Your opponent has disconnected")
       setOpponentJoined(false)
     })
@@ -177,32 +174,27 @@ export default function ChessGame({ roomId, username }: ChessGameProps) {
       if (!myTurn || !gameStarted || gameState.isCheckmate) return
 
       const [file, rank] = square.split("")
-      const col = file.charCodeAt(0) - 97 // a=0, b=1, etc.
-      const row = 8 - Number.parseInt(rank) // 8=0, 7=1, etc.
+      const col = file.charCodeAt(0) - 97
+      const row = 8 - Number.parseInt(rank)
       const piece = gameState.board[row][col]
 
       if (selectedSquare === null) {
-        // Select a piece
         if (piece && isPieceOwnedByPlayer(piece, myColor)) {
           setSelectedSquare(square)
           setPossibleMoves(calculatePossibleMoves(square, piece, gameState.board))
         }
       } else {
-        // Make a move or select a different piece
         if (selectedSquare === square) {
-          // Deselect
           setSelectedSquare(null)
           setPossibleMoves([])
         } else if (piece && isPieceOwnedByPlayer(piece, myColor)) {
-          // Select a different piece
           setSelectedSquare(square)
           setPossibleMoves(calculatePossibleMoves(square, piece, gameState.board))
         } else if (possibleMoves.includes(square)) {
-          // Make the move
           handleMove({
             from: selectedSquare,
             to: square,
-            piece: gameState.board[Number.parseInt(selectedSquare[1]) - 1][selectedSquare.charCodeAt(0) - 97],
+            piece: gameState.board[Number.parseInt(selectedSquare[1]) - 1][selectedSquare.charCodeAt(0) - 97] || "",
           })
           setSelectedSquare(null)
           setPossibleMoves([])
@@ -230,99 +222,61 @@ export default function ChessGame({ roomId, username }: ChessGameProps) {
     [myTurn, gameStarted, roomId, playerName],
   )
 
-  // Helper function to check if piece belongs to player
+  // Helper functions
   const isPieceOwnedByPlayer = (piece: string, playerColor: "white" | "black" | null): boolean => {
     if (!playerColor) return false
     return playerColor === "white" ? piece === piece.toUpperCase() : piece === piece.toLowerCase()
   }
 
-  // Calculate possible moves (simplified - you'd want a full chess engine here)
-  const calculatePossibleMoves = (square: string, piece: string, board: string[][]): string[] => {
-    // This is a simplified implementation
-    // In a real chess game, you'd implement full chess rules
-    const moves: string[] = []
-    const [file, rank] = square.split("")
-    const col = file.charCodeAt(0) - 97
-    const row = 8 - Number.parseInt(rank)
-
-    // Add basic movement patterns based on piece type
-    const pieceType = piece.toLowerCase()
-
-    switch (pieceType) {
-      case "p": // Pawn
-        // Add pawn movement logic
-        break
-      case "r": // Rook
-        // Add rook movement logic
-        break
-      case "n": // Knight
-        // Add knight movement logic
-        break
-      case "b": // Bishop
-        // Add bishop movement logic
-        break
-      case "q": // Queen
-        // Add queen movement logic
-        break
-      case "k": // King
-        // Add king movement logic
-        break
-    }
-
-    return moves
+  const calculatePossibleMoves = (square: string, piece: string, board: (string | null)[][]): string[] => {
+    // Simplified implementation - in production, use a proper chess engine
+    return []
   }
 
-  // Format time for display
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
     return `${mins}:${secs.toString().padStart(2, "0")}`
   }
 
-  // Get current player info
+  // Get player info
   const currentPlayer = players.find((p) => p.color === gameState.currentPlayer)
   const opponent = players.find((p) => p.username !== playerName)
-  const myPlayer = players.find((p) => p.username === playerName)
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen p-4">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Chess Game</h1>
-              <p className="text-gray-600">Room: {roomId}</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                {isConnected ? (
-                  <Wifi className="h-5 w-5 text-green-500" />
-                ) : (
-                  <WifiOff className="h-5 w-5 text-red-500" />
-                )}
-                <span className="text-sm text-gray-600">{isConnected ? "Connected" : "Disconnected"}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Connection Error */}
         {connectionError && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4 flex items-center">
-            <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
-            <span className="text-red-700">{connectionError}</span>
+          <div className="mb-6 bg-red-900/50 border border-red-700 rounded-lg p-4 flex items-center">
+            <AlertCircle className="h-5 w-5 text-red-400 mr-3" />
+            <span className="text-red-200">{connectionError}</span>
           </div>
         )}
 
         {/* Waiting for opponent */}
         {!opponentJoined && !connectionError && (
-          <div className="mb-6 bg-blue-50 border border-blue-200 rounded-md p-4 text-center">
+          <div className="mb-6 bg-blue-900/50 border border-blue-700 rounded-lg p-6 text-center">
             <div className="animate-pulse">
-              <h3 className="text-lg font-medium text-blue-900 mb-2">Waiting for opponent...</h3>
-              <p className="text-blue-700">
-                Share this room ID with your friend: <strong>{roomId}</strong>
+              <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <User className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-medium text-blue-200 mb-2">Waiting for opponent...</h3>
+              <p className="text-blue-300 mb-4">
+                Share the room ID <code className="bg-blue-800 px-2 py-1 rounded text-blue-200">{roomId}</code> with
+                your friend
               </p>
+              <div className="flex items-center justify-center space-x-2 text-sm text-blue-400">
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                <div
+                  className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "0.1s" }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "0.2s" }}
+                ></div>
+              </div>
             </div>
           </div>
         )}
@@ -330,29 +284,57 @@ export default function ChessGame({ roomId, username }: ChessGameProps) {
         <div className="grid lg:grid-cols-4 gap-6">
           {/* Game Board */}
           <div className="lg:col-span-2">
-            <Card>
+            <Card className="bg-gray-800/50 border-gray-700 backdrop-blur-sm">
+              {/* Opponent Info */}
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center">
-                    {opponent && (
-                      <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                          <User className="h-4 w-4" />
+                  <div className="flex items-center space-x-3">
+                    {opponent ? (
+                      <>
+                        <div className="w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-700 rounded-full flex items-center justify-center">
+                          <span className="text-white font-medium text-sm">
+                            {opponent.username.charAt(0).toUpperCase()}
+                          </span>
                         </div>
-                        <span>{opponent.username}</span>
-                        <Badge variant={opponent.color === "black" ? "default" : "secondary"}>{opponent.color}</Badge>
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-white font-medium">{opponent.username}</span>
+                            <Badge
+                              variant={opponent.color === "black" ? "default" : "secondary"}
+                              className={
+                                opponent.color === "black" ? "bg-gray-900 text-white" : "bg-gray-200 text-gray-900"
+                              }
+                            >
+                              {opponent.color}
+                            </Badge>
+                          </div>
+                          {opponent.rating && <span className="text-sm text-gray-400">Rating: {opponent.rating}</span>}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
+                          <User className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <span className="text-gray-400">Waiting for opponent...</span>
                       </div>
                     )}
-                  </CardTitle>
-                  {gameStarted && (
+                  </div>
+
+                  {gameStarted && opponent && (
                     <div className="text-right">
-                      <div className="text-sm text-gray-600">Time Left</div>
-                      <div className="font-mono text-lg">{formatTime(timeLeft[opponent?.color || "black"])}</div>
+                      <div className="flex items-center space-x-2 text-sm text-gray-400 mb-1">
+                        <Timer className="h-4 w-4" />
+                        <span>Time Left</span>
+                      </div>
+                      <div className="font-mono text-lg text-white">{formatTime(timeLeft[opponent.color])}</div>
                     </div>
                   )}
                 </div>
               </CardHeader>
-              <CardContent>
+
+              {/* Chess Board */}
+              <CardContent className="flex justify-center">
                 <ChessBoard
                   board={gameState.board}
                   selectedSquare={selectedSquare}
@@ -362,24 +344,52 @@ export default function ChessGame({ roomId, username }: ChessGameProps) {
                   disabled={!myTurn || !gameStarted}
                 />
               </CardContent>
-              <div className="p-4 border-t">
+
+              {/* Player Info */}
+              <div className="p-4 border-t border-gray-700">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <User className="h-4 w-4 text-green-600" />
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-medium text-sm">{playerName.charAt(0).toUpperCase()}</span>
                     </div>
-                    <span className="font-medium">{playerName}</span>
-                    <Badge variant={myColor === "white" ? "secondary" : "default"}>{myColor || "spectator"}</Badge>
-                    {myTurn && gameStarted && (
-                      <Badge variant="outline" className="text-green-600">
-                        Your Turn
-                      </Badge>
-                    )}
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-white font-medium">{playerName}</span>
+                        <Badge
+                          variant={myColor === "white" ? "secondary" : "default"}
+                          className={myColor === "white" ? "bg-gray-200 text-gray-900" : "bg-gray-900 text-white"}
+                        >
+                          {myColor || "spectator"}
+                        </Badge>
+                        {myTurn && gameStarted && (
+                          <Badge variant="outline" className="border-green-400 text-green-400">
+                            Your Turn
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-2 text-sm text-gray-400">
+                        {isConnected ? (
+                          <>
+                            <Wifi className="h-3 w-3 text-green-400" />
+                            <span>Connected</span>
+                          </>
+                        ) : (
+                          <>
+                            <WifiOff className="h-3 w-3 text-red-400" />
+                            <span>Disconnected</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
                   </div>
+
                   {gameStarted && (
                     <div className="text-right">
-                      <div className="text-sm text-gray-600">Time Left</div>
-                      <div className="font-mono text-lg">{formatTime(timeLeft[myColor || "white"])}</div>
+                      <div className="flex items-center space-x-2 text-sm text-gray-400 mb-1">
+                        <Timer className="h-4 w-4" />
+                        <span>Time Left</span>
+                      </div>
+                      <div className="font-mono text-lg text-white">{formatTime(timeLeft[myColor || "white"])}</div>
                     </div>
                   )}
                 </div>
@@ -394,18 +404,33 @@ export default function ChessGame({ roomId, username }: ChessGameProps) {
             <MoveHistory moves={moves} />
 
             {/* Game Controls */}
-            <Card>
+            <Card className="bg-gray-800/50 border-gray-700 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle>Game Controls</CardTitle>
+                <CardTitle className="text-white">Game Controls</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button variant="outline" className="w-full" disabled={!gameStarted}>
+                <Button
+                  variant="outline"
+                  className="w-full border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+                  disabled={!gameStarted}
+                >
+                  <Handshake className="h-4 w-4 mr-2" />
                   Offer Draw
                 </Button>
-                <Button variant="destructive" className="w-full" disabled={!gameStarted}>
+                <Button
+                  variant="destructive"
+                  className="w-full bg-red-900/50 border-red-700 text-red-200 hover:bg-red-900"
+                  disabled={!gameStarted}
+                >
+                  <Flag className="h-4 w-4 mr-2" />
                   Resign
                 </Button>
-                <Button variant="secondary" className="w-full" onClick={() => window.location.reload()}>
+                <Button
+                  variant="secondary"
+                  className="w-full bg-gray-700 text-gray-200 hover:bg-gray-600"
+                  onClick={() => window.location.reload()}
+                >
+                  <RotateCcw className="h-4 w-4 mr-2" />
                   Leave Game
                 </Button>
               </CardContent>

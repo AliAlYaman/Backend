@@ -9,8 +9,7 @@ import ProfilePage from "./pages/profile-page";
 import { AuthProvider } from "./contexts/auth-context";
 import ChessGamePage from "./pages/chess-game-page";
 import { useEffect } from "react";
-import socket from "./lib/socket";
-import { v4 as uuidv4, v4 } from "uuid";
+import {socket} from "./lib/socket";
 
 function App() {
   useEffect(() => {
@@ -34,7 +33,8 @@ function App() {
             <Route path="/" element={<ChessHomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
-            <Route path="/game" element={<ChessGamePage roomId={`${v4()}`}/>} />
+            <Route path="/game/" element={<ChessGamePage />} />
+            <Route path="/game/:roomId" element={<ChessGamePage />} />
 
 
             <Route

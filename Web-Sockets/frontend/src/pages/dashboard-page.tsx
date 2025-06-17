@@ -60,7 +60,7 @@ export default function DashboardPage() {
               </div>
               <h3 className="font-semibold text-lg mb-2">Play Now</h3>
               <p className="text-gray-600 text-sm mb-4">Start a quick game</p>
-              <Button className="w-full bg-green-600 hover:bg-green-700">Play</Button>
+              <Button onClick={() => {navigate("/game")}} className="w-full bg-green-600 hover:bg-green-700">Play</Button>
             </CardContent>
           </Card>
 
