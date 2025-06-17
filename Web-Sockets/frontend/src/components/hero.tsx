@@ -1,8 +1,11 @@
+import { useNavigate } from "react-router-dom"
 import { Button } from "./ui/button"
 import { Card, CardContent } from "./ui/card"
 import { Play, Users, Bot, Zap } from "lucide-react"
 
 export default function Hero() {
+
+  const navigate= useNavigate();
   return (
     <section className="bg-gradient-to-br from-green-50 to-blue-50 py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -21,7 +24,9 @@ export default function Hero() {
               </div>
               <h3 className="font-semibold text-lg mb-2">Play Online</h3>
               <p className="text-gray-600 text-sm mb-4">Play with millions of players around the world</p>
-              <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+              <Button onClick={()=> {
+                navigate('/game')
+              }} className="w-full bg-green-600 hover:bg-green-700 text-white">
                 <Play className="h-4 w-4 mr-2" />
                 Play Now
               </Button>

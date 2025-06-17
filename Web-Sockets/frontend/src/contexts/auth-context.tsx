@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { authService } from "../services/auth-services"
 import type { User, LoginCredentials, SignupCredentials } from "../types/auth"
-import React from "react"
 
 interface AuthContextType {
   user: User | null
@@ -26,7 +25,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const isAuthenticated = !!user
 
-  // Initialize auth state on mount
+
   useEffect(() => {
     initializeAuth()
   }, [])
@@ -76,6 +75,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = () => {
     setUser(null)
     authService.clearStoredUser()
+    authService.logout()
   }
 
   const updateUser = (userData: Partial<User>) => {
@@ -110,9 +110,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     refreshUser,
   }
 
-  return React.createElement(AuthContext.Provider, { value }, children)
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
+// Custom hook to use the auth context
 export function useAuth() {
   const context = useContext(AuthContext)
   if (context === undefined) {
@@ -120,3 +121,6 @@ export function useAuth() {
   }
   return context
 }
+
+// Export the context for advanced usage if needed
+export { AuthContext }

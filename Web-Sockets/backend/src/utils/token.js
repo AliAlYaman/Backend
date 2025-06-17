@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const RefreshToken = require('../models/token-model');
+const bcrypt = require('bcrypt');
 
 exports.createAccessToken = (user) => {
   return jwt.sign(
@@ -12,15 +13,16 @@ exports.createAccessToken = (user) => {
 
 exports.createRefreshToken = async (user) => {
   const refreshToken = crypto.randomBytes(40).toString('hex');
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+  const hashedToken = await bcrypt.hash(refreshToken, 10);
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
   await RefreshToken.create({
     userId: user._id,
-    token: refreshToken,
+    token: hashedToken,
     expiresAt,
   });
 
-  return refreshToken;
+  return hashedToken; 
 };
 
 exports.verifyRefreshToken = async (token) => {

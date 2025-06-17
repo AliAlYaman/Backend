@@ -8,7 +8,7 @@ import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Check } from "lucide-react"
-import { useAuth } from "../hooks/use-auth"
+import { useAuth } from "../contexts/auth-context"
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -81,8 +81,11 @@ export default function SignupPage() {
     if (!validateForm()) return
 
     try {
-      await signup(formData.username, formData.email, formData.password)
-      navigate("/dashboard")
+      await signup({
+        username: formData.username, email: formData.email, password: formData.password,
+        agreeToTerms: true
+      })
+      navigate("/")
     } catch (error) {
       setErrors({ general: "Failed to create account. Please try again." })
     }

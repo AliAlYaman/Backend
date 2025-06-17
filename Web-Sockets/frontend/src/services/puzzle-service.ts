@@ -17,7 +17,6 @@ export interface PuzzleCategory {
 }
 
 class PuzzleService {
-  private puzzles: PuzzleData[] = []
 
   async getDailyPuzzle(): Promise<PuzzleData> {
     // Mock implementation
@@ -91,7 +90,7 @@ class PuzzleService {
     ]
   }
 
-  async submitPuzzleSolution(puzzleId: string, moves: string[]): Promise<{ correct: boolean; solution: string[] }> {
+  async submitPuzzleSolution(): Promise<{ correct: boolean; solution: string[] }> {
     // Mock implementation
     const isCorrect = Math.random() > 0.3 // 70% success rate for demo
     return {
