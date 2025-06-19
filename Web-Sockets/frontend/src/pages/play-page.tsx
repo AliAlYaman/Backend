@@ -11,9 +11,9 @@ import DashboardHeader from "../components/dashboard/dashboard-header"
 
 export default function PlayPage() {
   const navigate = useNavigate()
-  const { user } = useAuth()
-  const [roomId, setRoomId] = useState("")
-  const [isCreatingRoom, setIsCreatingRoom] = useState(false)
+  useAuth()
+  const [] = useState("")
+  const [] = useState(false)
 
   const handleQuickPlay = () => {
     // Use a constant room ID so all users join the same room
@@ -21,19 +21,7 @@ export default function PlayPage() {
     navigate(`/game/${constantRoomId}`)
   }
 
-  const handleJoinRoom = () => {
-    if (roomId.trim()) {
-      navigate(`/game/${roomId.trim().toUpperCase()}`)
-    }
-  }
 
-  const handleCreateRoom = () => {
-    setIsCreatingRoom(true)
-    // Use the constant room ID instead of generating random
-    const constantRoomId = "MAIN_ROOM"
-    setRoomId(constantRoomId)
-    setIsCreatingRoom(false)
-  }
 
   const gameOptions = [
     {

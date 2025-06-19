@@ -1,54 +1,36 @@
-# React + TypeScript + Vite
+# ♟️ Chess Web App – Frontend (React + TypeScript)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the **frontend** for a full-stack real-time multiplayer **chess game** built using **React**, **TypeScript**, and **WebSockets**.  
+Players can join or create chess rooms and play against each other in real time. This frontend integrates with a WebSocket-powered Express backend and a MongoDB database for live gameplay state synchronization.
 
-Currently, two official plugins are available:
+## 🔗 Live Deployment
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+🚀 **Frontend Deployed on Vercel:**  
+[https://portfolio-alialyamans-projects.vercel.app/](https://portfolio-alialyamans-projects.vercel.app/)
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🎮 Features
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- ✅ Real-time multiplayer chess via **WebSockets**
+- ✅ Create or join game rooms dynamically
+- ✅ Live move updates and game state syncing
+- ✅ Player color assignment (White / Black)
+- ✅ Chess puzzles and learning section
+- ✅ Responsive, modern UI (built with Tailwind)
+- ✅ JWT-based authentication with protected routes
+- ✅ Integrated game dashboard & profile system
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🛠️ Tech Stack
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+- **React** (w/ TypeScript)
+- **Vite** or **Next.js** (depending on project setup)
+- **Tailwind CSS** for UI styling
+- **Socket.IO client** for real-time communication
+- **React Router** for SPA navigation
+- **Custom hooks** for chess logic and puzzles
+- **Vercel** for deployment
+
+---

@@ -26,7 +26,7 @@ export function usePuzzles() {
   })
   const [isLoading, setIsLoading] = useState(false)
 
-  const fetchPuzzle = useCallback(async (difficulty?: string) => {
+  const fetchPuzzle = useCallback(async () => {
     setIsLoading(true)
     // Simulate API call
     setTimeout(() => {
