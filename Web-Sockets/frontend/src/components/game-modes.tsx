@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Button } from './ui/button'
 import { Clock, Zap, Target, Trophy } from 'lucide-react'
+import FutureFeaturePopup from './ui/future-feature-popup'
 
 export default function GameModes() {
   const gameModes = [
@@ -61,9 +62,10 @@ export default function GameModes() {
                   <div className="text-2xl font-bold text-gray-900">{mode.time}</div>
                   <div className="text-sm text-gray-500">{mode.players} playing</div>
                 </div>
-                <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+                {/* <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
                   Play {mode.title}
-                </Button>
+                </Button> */}
+                <FutureFeaturePopup />
               </CardContent>
             </Card>
           ))}

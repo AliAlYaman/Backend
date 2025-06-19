@@ -8,52 +8,68 @@ import DashboardPage from "./pages/dashboard-page";
 import ProfilePage from "./pages/profile-page";
 import { AuthProvider } from "./contexts/auth-context";
 import ChessGamePage from "./pages/chess-game-page";
-import { useEffect } from "react";
-import {socket} from "./lib/socket";
+import JoinRoomPage from "./pages/join-room-page";
+import PlayPage from "./pages/play-page";
 
 function App() {
-  useEffect(() => {
-    socket.on('connect', () => {
-      console.log('✅ Connected to Socket.IO server');
-    });
-
-    socket.on('connect_error', (err) => {
-      console.error('❌ Socket connection error:', err);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
   return (
     <>
       <AuthProvider>
         <Router>
-            <Routes>
+          <Routes>
             <Route path="/" element={<ChessHomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
-            <Route path="/game/" element={<ChessGamePage />} />
-            <Route path="/game/:roomId" element={<ChessGamePage />} />
-
+            <Route
+              path="/play"
+              element={
+                <ProtectedRoute>
+                  <PlayPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/game/:roomId"
+              element={
+                <ProtectedRoute>
+                  <ChessGamePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/game"
+              element={
+                <ProtectedRoute>
+                  <ChessGamePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/join-room"
+              element={
+                <ProtectedRoute>
+                  <JoinRoomPage />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               path="/dashboard"
               element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
               }
             />
             <Route
               path="/profile"
               element={
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
               }
             />
-            </Routes>
+          </Routes>
         </Router>
       </AuthProvider>
     </>

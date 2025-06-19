@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Button } from "./ui/button"
 import { Badge } from "./ui/badge"
-import { Zap, Star, TrendingUp } from "lucide-react"
+import { Zap, TrendingUp } from "lucide-react"
+import FutureFeaturePopup from "./ui/future-feature-popup"
 
 export default function PuzzlesSection() {
   const puzzles = [
@@ -65,10 +66,11 @@ export default function PuzzlesSection() {
                     <span className="text-gray-600">Solved by:</span>
                     <span className="font-medium">{puzzle.solved} players</span>
                   </div>
-                  <Button className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white">
+                  {/* <Button className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white">
                     <Star className="h-4 w-4 mr-2" />
                     Solve Puzzle
-                  </Button>
+                  </Button> */}
+                  <FutureFeaturePopup />
                 </div>
               </CardContent>
             </Card>

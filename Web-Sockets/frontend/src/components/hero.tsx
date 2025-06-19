@@ -2,8 +2,10 @@ import { useNavigate } from "react-router-dom"
 import { Button } from "./ui/button"
 import { Card, CardContent } from "./ui/card"
 import { Play, Users, Bot, Zap } from "lucide-react"
+import FutureFeaturePopup from "./ui/future-feature-popup"
 
 export default function Hero() {
+
 
   const navigate= useNavigate();
   return (
@@ -40,10 +42,11 @@ export default function Hero() {
               </div>
               <h3 className="font-semibold text-lg mb-2">Play Computer</h3>
               <p className="text-gray-600 text-sm mb-4">Challenge our smart AI opponents</p>
-              <Button variant="outline" className="w-full">
+              {/* <Button variant="outline" className="w-full">
                 <Play className="h-4 w-4 mr-2" />
                 vs Computer
-              </Button>
+              </Button> */}
+              <FutureFeaturePopup />
             </CardContent>
           </Card>
 
@@ -54,10 +57,12 @@ export default function Hero() {
               </div>
               <h3 className="font-semibold text-lg mb-2">Puzzles</h3>
               <p className="text-gray-600 text-sm mb-4">Solve tactical puzzles and improve</p>
-              <Button variant="outline" className="w-full">
+              {/* <Button variant="outline" className="w-full">
                 <Zap className="h-4 w-4 mr-2" />
                 Solve Puzzles
-              </Button>
+              </Button> */}
+
+              <FutureFeaturePopup />
             </CardContent>
           </Card>
 
@@ -68,9 +73,10 @@ export default function Hero() {
               </div>
               <h3 className="font-semibold text-lg mb-2">Learn</h3>
               <p className="text-gray-600 text-sm mb-4">Improve with lessons and courses</p>
-              <Button variant="outline" className="w-full">
+              {/* <Button variant="outline" className="w-full">
                 Start Learning
-              </Button>
+              </Button> */}
+              <FutureFeaturePopup />
             </CardContent>
           </Card>
         </div>

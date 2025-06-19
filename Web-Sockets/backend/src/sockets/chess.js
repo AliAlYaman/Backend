@@ -1,53 +1,103 @@
-const activeGames = {}
+const { Chess } = require("chess.js");
+const Room = require("../models/room-model");
 
 module.exports = (io) => {
-  const rooms = {}; // roomId -> array of usernames
+  io.on("connection", (socket) => {
+    console.log(`Socket connected: ${socket.id}`);
 
-io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
+    socket.on("join_room", async ({ roomId, playerName }) => {
+      let room = await Room.findOne({ roomId });
 
-  socket.on("join-room", ({ roomId, username }) => {
-    socket.join(roomId);
-    socket.username = username;
-    socket.roomId = roomId;
+      if (!room) {
+        // First player joins
+        const game = new Chess();
+        room = new Room({
+          roomId,
+          whitePlayer: playerName,
+          fen: game.fen(),
+        });
+        await room.save();
+        socket.join(roomId);
+        socket.emit("player_assigned", { color: "white", gameState: room });
+        return;
+      }
 
-    // Initialize room array if it doesn't exist
-    if (!rooms[roomId]) {
-      rooms[roomId] = [];
-    }
+      // If room exists
+      if (!room.blackPlayer && room.whitePlayer !== playerName) {
+        room.blackPlayer = playerName;
+        room.gameStarted = true;
+        await room.save();
+      }
 
-    // Avoid adding duplicate usernames
-    if (!rooms[roomId].includes(username)) {
-      rooms[roomId].push(username);
-    }
+      socket.join(roomId);
+      const color = room.whitePlayer === playerName ? "white" : "black";
+      socket.emit("player_assigned", { color, gameState: room });
+      socket.to(roomId).emit("player_joined", room);
+    });
 
-    console.log(`Room ${roomId} has users:`, rooms[roomId]);
+    socket.on("make_move", async ({ roomId, from, to, playerName }) => {
+      const room = await Room.findOne({ roomId });
+      if (!room || !room.gameStarted) return;
 
-    // Notify all players of current user list
-    io.to(roomId).emit("players-update", rooms[roomId]);
+      const game = new Chess(room.fen);
+      const move = game.move({ from, to });
+      if (!move) return;
 
-    // Start game if 2 players have joined
-    if (rooms[roomId].length === 2) {
-      io.to(roomId).emit("start-game", {
-        white: rooms[roomId][0],
-        black: rooms[roomId][1],
+      const newFen = game.fen();
+      const turn = game.turn();
+
+      const newMove = {
+        from,
+        to,
+        piece: move.piece,
+        captured: move.captured || null,
+        promotion: move.promotion || null,
+        timestamp: Date.now(),
+        player: playerName,
+      };
+
+      room.fen = newFen;
+      room.currentTurn = turn;
+      room.moves.push(newMove);
+      await room.save();
+
+      io.to(roomId).emit("move_made", {
+        from,
+        to,
+        gameState: room,
       });
-    }
+    });
+
+    socket.on("disconnect", () => {
+      console.log(`Socket disconnected: ${socket.id}`);
+    });
+
+    socket.on("leave_game", async ({ roomId, playerName }) => {
+  const room = await Room.findOne({ roomId });
+  if (!room) return;
+
+  let message = "";
+
+  if (room.whitePlayer === playerName) {
+    room.whitePlayer = null;
+    message = "White player left the game.";
+  } else if (room.blackPlayer === playerName) {
+    room.blackPlayer = null;
+    message = "Black player left the game.";
+  }
+
+  // End the game if either player leaves
+  room.gameStarted = false;
+  await room.save();
+
+  socket.leave(roomId);
+  io.to(roomId).emit("player_left", {
+    gameState: room,
+    message,
   });
 
-  socket.on("disconnect", () => {
-    const { username, roomId } = socket;
-    if (roomId && rooms[roomId]) {
-      rooms[roomId] = rooms[roomId].filter((name) => name !== username);
-      io.to(roomId).emit("players-update", rooms[roomId]);
-    }
-  });
-
-  socket.on("move", ({ roomId, from, to }) => {
-  // Simply relay move to other clients
-  socket.to(roomId).emit("move", { from, to })
-})
-
+  console.log(message);
 });
 
-}
+  });
+};
