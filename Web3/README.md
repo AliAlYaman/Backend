@@ -2,7 +2,7 @@
 
 Welcome to **CRONOS**, a Web3 application that allows users to securely manage and transfer cryptocurrency through a decentralized wallet system.
 
-![CRONOS Screenshot](./assets/landing-screenshot.png)
+![CRONOS Screenshot](./assets/screenshot.png)
 
 ## 🌐 Live Site
 
