@@ -6,7 +6,7 @@ Players can join or create chess rooms and play against each other in real time.
 ## 🔗 Live Deployment
 
 🚀 **Frontend Deployed on Vercel:**  
-[https://portfolio-alialyamans-projects.vercel.app/](https://portfolio-alialyamans-projects.vercel.app/)
+[https://backend-sigma-ashy-77.vercel.app/](https://backend-sigma-ashy-77.vercel.app/)
 
 ---
 
