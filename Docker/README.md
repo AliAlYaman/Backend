@@ -33,13 +33,13 @@ npm start
 
 ### 🐳Dockerfile
 
-FROM node:22              # Uses official Node.js 18 base image
-WORKDIR /app              # Sets working directory inside the container
-COPY package*.json ./     # Copies package files to install dependencies
-RUN npm install           # Installs Express inside the container
-COPY . .                  # Copies the rest of your code
-EXPOSE 3000               # Tells Docker the app will use port 3000
-CMD ["npm", "start"]      # Command to run the app inside the container
+- FROM node:22              # Uses official Node.js 18 base image
+- WORKDIR /app              # Sets working directory inside the container
+- COPY package*.json ./     # Copies package files to install dependencies
+- RUN npm install           # Installs Express inside the container
+- COPY . .                  # Copies the rest of your code
+- EXPOSE 3000               # Tells Docker the app will use port 3000
+- CMD ["npm", "start"]      # Command to run the app inside the container
 
 
 ### 📦 How It Works Internally
