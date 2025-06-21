@@ -18,10 +18,8 @@ Feel free to swap in your own application code — the focus is on **how** it is
 
 ## 🌐 Live Demo
 
-> **🚧 TODO:** Replace the URL below once your EC2 instance is live.
-
 ```text
-https://your‑ec2‑public‑dns.amazonaws.com
+http://ec2-44-222-223-206.compute-1.amazonaws.com/
 ```
 
 ---
